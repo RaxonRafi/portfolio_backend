@@ -1,109 +1,110 @@
-# Next Blog Starter
+# Portfolio Backend
 
-A simple **Blog Application Starter Pack** built with **TypeScript, Express.js**.  
-This project is designed for the **Next Level Web Development Bootcamp** to help learners practice Prisma hands-on by building a blog platform.
-
----
+TypeScript + Express backend for a personal portfolio site with Prisma (Postgres), Supabase connectivity check, Cloudinary uploads, and JWT auth.
 
 ## Features
 
-- TypeScript + Express.js setup
-- Modular project structure
-- Environment configuration with `dotenv`
-- Ready to extend with blog modules (Posts, Users, etc.)
+- TypeScript + Express
+- Prisma ORM (PostgreSQL)
+- JWT auth with httpOnly cookies
+- Role-based access control (ADMIN vs USER)
+- Cloudinary image uploads
+- Modular routes: Users, Posts, Projects
 
----
-
-## Installation
-
-Clone the repository:
-
-```bash
-git clone https://github.com/Apollo-Level2-Web-Dev/next-blog-starter.git
-cd next-blog-starter
-```
+## Getting Started
 
 Install dependencies:
 
 ```bash
-# using npm
 npm install
-
-# using yarn
-yarn install
-
-# using pnpm
-pnpm install
 ```
 
-Setup environment variables:
+Create `.env` and fill values:
 
 ```bash
-cp .env.example .env
-```
-
-### Supabase configuration
-
-Add the following to your `.env` file (create it if missing):
-
-```bash
-SUPABASE_URL=your_supabase_project_url
-SUPABASE_ANON_KEY=your_supabase_anon_key
 PORT=5000
-```
 
-Then start the server and verify the health endpoint:
+# Database (Supabase Postgres or any Postgres)
+DATABASE_URL=
+DIRECT_URL=
 
-```bash
-npm run dev
-# in another terminal
-curl http://localhost:5000/api/v1/health/supabase
-```
+# Supabase (for health check only)
+SUPABASE_URL=
+SUPABASE_ANON_KEY=
 
-If you have not created any table yet, the health endpoint still returns `{ ok: true }` as a connectivity check. For real queries, create a table in Supabase and adjust the code accordingly.
-
-### Cloudinary configuration
-
-Add to `.env`:
-
-```bash
+# Cloudinary
 CLOUDINARY_CLOUD_NAME=
 CLOUDINARY_API_KEY=
 CLOUDINARY_API_SECRET=
-```
 
-Upload endpoint (returns URL to store in `thumbnail`):
-
-```bash
-curl -F "file=@ ./path/to/image.jpg" http://localhost:5000/api/v1/project/upload/thumbnail
-```
-
-### JWT auth
-
-Add to `.env`:
-
-```bash
+# JWT
 JWT_SECRET=change_me
-JWT_EXPIRES_IN=1d
-```
+# Seconds; e.g., 86400 = 1 day
+JWT_EXPIRES_IN=86400
 
-Login:
-
-```bash
-curl -X POST http://localhost:5000/api/v1/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"user@example.com","password":"plaintext"}'
-```
-
-### Admin seed
-
-On server start, an ADMIN user is created if missing. Set in `.env`:
-
-```bash
+# Admin seeding
 ADMIN_EMAIL=admin@example.com
 ADMIN_PASSWORD=changeme
 ADMIN_NAME=Admin
 ```
+
+Run migrations and generate client:
+
+```bash
+npx prisma migrate dev
+npx prisma generate
+```
+
+Start dev server:
+
+```bash
+npm run dev
+```
+
+Supabase health check:
+
+```bash
+curl http://localhost:5000/api/v1/health/supabase
+```
+
+## API Overview
+
+Base URL: `http://localhost:5000/api/v1`
+
+Auth
+
+- POST `/auth/login` → Sets httpOnly cookie `token` on success
+  - Body: `{ "email": string, "password": string }`
+
+Users
+
+- GET `/user` → List users
+- GET `/user/:id` → Get user by id
+- POST `/user` → Create user
+- PATCH `/user/:id` → Update user
+- DELETE `/user/:id` → Delete user
+
+Posts
+
+- POST `/post` (ADMIN, multipart) → Create post. Fields: `title`, `content`, optional `tags[]`, optional `thumbnail` (file)
+- GET `/post` → List posts
+- GET `/post/:id` → Get post
+- PATCH `/post/:id` (ADMIN) → Update post (can extend to accept new file)
+- DELETE `/post/:id` (ADMIN) → Delete post
+
+Projects
+
+- POST `/project` (ADMIN, multipart) → Create project. Fields: `project_title`, `desc`, `tech_used[]`, `key_features[]`, optional `git_url`, `live_url`, optional `thumbnail` (file)
+- GET `/project` → List projects
+- GET `/project/:id` → Get project
+- PATCH `/project/:id` (ADMIN) → Update project
+- DELETE `/project/:id` (ADMIN) → Delete project
+
+## Notes
+
+- Tokens are stored as httpOnly cookies. Include the cookie in subsequent requests.
+- Image uploads are handled inside create routes. The server uploads to Cloudinary and stores the returned URL.
+- Ensure your DB schema is migrated and Prisma Client regenerated after any schema change.
 
 Run the development server:
 
