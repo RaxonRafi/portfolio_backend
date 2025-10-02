@@ -3,6 +3,12 @@ import { ProjectService } from "./project.service";
 
 const createProject = async (req: Request, res: Response) => {
   try {
+    // Parse JSON data if sent as 'data' field (for multipart/form-data)
+    let data = req.body;
+    if (req.body.data) {
+      data = JSON.parse(req.body.data);
+    }
+
     if (req.file) {
       const { Readable } = await import("stream");
       const { cloudinary } = await import("../../config/cloudinary");
@@ -19,9 +25,9 @@ const createProject = async (req: Request, res: Response) => {
         );
         bufferStream.pipe(stream);
       });
-      (req.body as any).thumbnail = uploadResult.secure_url;
+      data.thumbnail = uploadResult.secure_url;
     }
-    const result = await ProjectService.createProject(req.body);
+    const result = await ProjectService.createProject(data);
     res.status(201).json(result);
   } catch (error) {
     res.status(500).send(error);
