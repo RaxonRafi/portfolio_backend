@@ -6,12 +6,12 @@ const createPost = async (req: Request, res: Response) => {
     // If a file is uploaded under field name "thumbnail", upload to Cloudinary first
     if (req.file) {
       const { Readable } = await import("stream");
-      const { cloudinary } = await import("../../config/cloudinary");
+      const { cloudinaryUpload  } = await import("../../config/cloudinary");
       const bufferStream = new Readable();
       bufferStream.push(req.file.buffer);
       bufferStream.push(null);
       const uploadResult: any = await new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
+        const stream = cloudinaryUpload .uploader.upload_stream(
           { folder: "blog-posts" },
           (error, result) => {
             if (error) return reject(error);
