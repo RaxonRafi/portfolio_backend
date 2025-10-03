@@ -40,6 +40,7 @@ model Project {
   desc          String
   key_features  String[]
   thumbnail     String?
+  thumbnailPublicId String? 
   git_url       String?
   live_url      String?
   createdAt     DateTime @default(now())
