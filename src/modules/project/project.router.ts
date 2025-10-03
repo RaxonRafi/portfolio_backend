@@ -27,7 +27,7 @@ router.post(
 );
 router.get("/", ProjectController.getProjects);
 router.get("/:id", ProjectController.getProjectById);
-router.patch("/:id", ProjectController.updateProject);
+router.patch("/:id",upload.single("thumbnail"), ProjectController.updateProject);
 router.delete("/:id", ProjectController.deleteProject);
 
 
